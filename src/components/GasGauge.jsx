@@ -1,15 +1,19 @@
 const MAX_PPM = 1000; // gauge scale ceiling
-const THRESHOLDS = { warning: 300, critical: 600 };
+const DEFAULT_THRESHOLDS = { warning: 300, critical: 600 };
 
-function toneFor(ppm) {
-  if (ppm >= THRESHOLDS.critical) return { stroke: '#ef4444', text: 'text-status-critical', label: 'Critical' };
-  if (ppm >= THRESHOLDS.warning) return { stroke: '#f59e0b', text: 'text-status-warning', label: 'Warning' };
+function toneFor(ppm, thresholds) {
+  if (ppm >= thresholds.critical) return { stroke: '#ef4444', text: 'text-status-critical', label: 'Critical' };
+  if (ppm >= thresholds.warning) return { stroke: '#f59e0b', text: 'text-status-warning', label: 'Warning' };
   return { stroke: '#22c55e', text: 'text-status-normal', label: 'Normal' };
 }
 
-export default function GasGauge({ methanePpm }) {
+export default function GasGauge({ methanePpm, warningAt, criticalAt }) {
   const ppm = methanePpm ?? 0;
-  const tone = toneFor(ppm);
+  const thresholds = {
+    warning: warningAt ?? DEFAULT_THRESHOLDS.warning,
+    critical: criticalAt ?? DEFAULT_THRESHOLDS.critical,
+  };
+  const tone = toneFor(ppm, thresholds);
 
   const radius = 70;
   const circumference = Math.PI * radius; // half-circle arc length
@@ -61,10 +65,10 @@ export default function GasGauge({ methanePpm }) {
 
         <div className="mt-5 flex items-center gap-4 text-xs font-mono text-slate-500">
           <span className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-status-warning/70" /> ≥ {THRESHOLDS.warning} ppm
+            <span className="h-1.5 w-1.5 rounded-full bg-status-warning/70" /> ≥ {thresholds.warning} ppm
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-status-critical/70" /> ≥ {THRESHOLDS.critical} ppm
+            <span className="h-1.5 w-1.5 rounded-full bg-status-critical/70" /> ≥ {thresholds.critical} ppm
           </span>
         </div>
       </div>

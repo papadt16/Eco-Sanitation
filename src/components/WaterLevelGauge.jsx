@@ -1,14 +1,18 @@
-const THRESHOLDS = { warning: 60, critical: 85 };
+const DEFAULT_THRESHOLDS = { warning: 60, critical: 85 };
 
-function toneFor(pct) {
-  if (pct >= THRESHOLDS.critical) return { fill: '#ef4444', text: 'text-status-critical', label: 'Critical' };
-  if (pct >= THRESHOLDS.warning) return { fill: '#f59e0b', text: 'text-status-warning', label: 'Warning' };
+function toneFor(pct, thresholds) {
+  if (pct >= thresholds.critical) return { fill: '#ef4444', text: 'text-status-critical', label: 'Critical' };
+  if (pct >= thresholds.warning) return { fill: '#f59e0b', text: 'text-status-warning', label: 'Warning' };
   return { fill: '#22c55e', text: 'text-status-normal', label: 'Normal' };
 }
 
-export default function WaterLevelGauge({ levelPct }) {
+export default function WaterLevelGauge({ levelPct, warningAt, criticalAt }) {
   const pct = levelPct ?? 0;
-  const tone = toneFor(pct);
+  const thresholds = {
+    warning: warningAt ?? DEFAULT_THRESHOLDS.warning,
+    critical: criticalAt ?? DEFAULT_THRESHOLDS.critical,
+  };
+  const tone = toneFor(pct, thresholds);
 
   return (
     <div className="panel flex flex-col">
@@ -38,7 +42,7 @@ export default function WaterLevelGauge({ levelPct }) {
             </div>
           </div>
           {/* Threshold ticks */}
-          {[THRESHOLDS.warning, THRESHOLDS.critical].map((t) => (
+          {[thresholds.warning, thresholds.critical].map((t) => (
             <div
               key={t}
               className="absolute left-0 right-0 border-t border-dashed border-white/25"
@@ -56,10 +60,10 @@ export default function WaterLevelGauge({ levelPct }) {
 
           <div className="mt-4 space-y-1.5 text-xs font-mono text-slate-500">
             <div className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-status-warning/70" /> Warning ≥ {THRESHOLDS.warning}%
+              <span className="h-1.5 w-1.5 rounded-full bg-status-warning/70" /> Warning ≥ {thresholds.warning}%
             </div>
             <div className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-status-critical/70" /> Critical ≥ {THRESHOLDS.critical}%
+              <span className="h-1.5 w-1.5 rounded-full bg-status-critical/70" /> Critical ≥ {thresholds.critical}%
             </div>
           </div>
         </div>

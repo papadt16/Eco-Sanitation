@@ -14,15 +14,17 @@ import { Line } from 'react-chartjs-2';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, Filler);
 
 export default function HistoricalChart({ history }) {
+  const displayWindow = useMemo(() => history.slice(-40), [history]);
+
   const data = useMemo(() => {
-    const labels = history.map((r) => r.receivedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+    const labels = displayWindow.map((r) => r.receivedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
 
     return {
       labels,
       datasets: [
         {
           label: 'Fill level (%)',
-          data: history.map((r) => r.levelPct),
+          data: displayWindow.map((r) => r.levelPct),
           borderColor: '#33ac74',
           backgroundColor: 'rgba(51,172,116,0.12)',
           pointRadius: 0,
@@ -34,7 +36,7 @@ export default function HistoricalChart({ history }) {
         },
         {
           label: 'Methane (ppm)',
-          data: history.map((r) => r.methanePpm),
+          data: displayWindow.map((r) => r.methanePpm),
           borderColor: '#f59e0b',
           backgroundColor: 'rgba(245,158,11,0.08)',
           pointRadius: 0,
@@ -46,7 +48,7 @@ export default function HistoricalChart({ history }) {
         },
       ],
     };
-  }, [history]);
+  }, [displayWindow]);
 
   const options = useMemo(
     () => ({
@@ -103,11 +105,11 @@ export default function HistoricalChart({ history }) {
           <p className="eyebrow">Historical Trend</p>
           <h3 className="font-display text-white font-semibold">Level &amp; gas over time</h3>
         </div>
-        <span className="text-xs font-mono text-slate-500">Last {history.length} readings</span>
+        <span className="text-xs font-mono text-slate-500">Last {displayWindow.length} readings</span>
       </div>
 
       <div className="p-5 h-72">
-        {history.length === 0 ? (
+        {displayWindow.length === 0 ? (
           <div className="h-full flex items-center justify-center text-sm text-slate-500 font-mono">
             Waiting for telemetry…
           </div>

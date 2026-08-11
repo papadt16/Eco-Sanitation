@@ -1,11 +1,12 @@
+import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 
 const NAV_ITEMS = [
-  { label: 'Telemetry', icon: PulseIcon, active: true },
-  { label: 'Node Registry', icon: GridIcon, active: false },
-  { label: 'Alert History', icon: BellIcon, active: false },
-  { label: 'Reports', icon: DocIcon, active: false },
-  { label: 'System Settings', icon: GearIcon, active: false },
+  { label: 'Telemetry', to: '/dashboard', icon: PulseIcon },
+  { label: 'Node Registry', to: '/nodes', icon: GridIcon },
+  { label: 'Alert History', to: '/alerts', icon: BellIcon },
+  { label: 'Reports', to: '/reports', icon: DocIcon },
+  { label: 'System Settings', to: '/settings', icon: GearIcon },
 ];
 
 export default function Sidebar({ open, onClose }) {
@@ -46,20 +47,23 @@ export default function Sidebar({ open, onClose }) {
 
         <nav className="flex-1 overflow-y-auto px-3 py-5 space-y-1">
           <p className="eyebrow px-2 mb-2">Operations</p>
-          {NAV_ITEMS.map(({ label, icon: Icon, active }) => (
-            <button
+          {NAV_ITEMS.map(({ label, to, icon: Icon }) => (
+            <NavLink
               key={label}
-              type="button"
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors
+              to={to}
+              onClick={onClose}
+              className={({ isActive }) =>
+                `w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors
                 ${
-                  active
+                  isActive
                     ? 'bg-brand-600/15 text-brand-300 border border-brand-600/30'
                     : 'text-slate-400 hover:text-slate-100 hover:bg-white/5 border border-transparent'
-                }`}
+                }`
+              }
             >
               <Icon className="h-4 w-4 shrink-0" />
               {label}
-            </button>
+            </NavLink>
           ))}
         </nav>
 
