@@ -37,6 +37,7 @@ function ConnectionBadge({ state }) {
     [CONNECTION_STATES.CONNECTING]: { label: 'Connecting', dot: 'bg-status-warning', pulse: true },
     [CONNECTION_STATES.DISCONNECTED]: { label: 'Disconnected', dot: 'bg-slate-500', pulse: false },
     [CONNECTION_STATES.ERROR]: { label: 'Connection error', dot: 'bg-status-critical', pulse: true },
+    [CONNECTION_STATES.NOT_CONFIGURED]: { label: 'Broker not configured', dot: 'bg-slate-500', pulse: false },
   }[state] || { label: 'Unknown', dot: 'bg-slate-500', pulse: false };
 
   return (
