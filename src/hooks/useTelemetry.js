@@ -8,8 +8,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { getMqttClient, parseTelemetryPayload } from '../utils/mqttClient';
 
-const HISTORY_LIMIT = 40; // number of points retained for the live chart
-const ALERTS_LIMIT = 25; // number of rows retained in the alerts panel
+const HISTORY_LIMIT = 300; // rolling buffer; chart components slice to their own display window
+const ALERTS_LIMIT = 200; // enough for a full-session Alert History page
 
 const CONNECTION_STATES = {
   CONNECTING: 'CONNECTING',
@@ -23,8 +23,9 @@ export function useTelemetry() {
   const [latest, setLatest] = useState(null);
   const [history, setHistory] = useState([]);
   const [alerts, setAlerts] = useState([]);
+  const [nodes, setNodes] = useState({}); // nodeId -> latest reading for that node
   const [connectionState, setConnectionState] = useState(CONNECTION_STATES.CONNECTING);
-  const previousStatusRef = useRef('NORMAL');
+  const previousStatusByNodeRef = useRef({});
 
   useEffect(() => {
     const topic = import.meta.env.VITE_MQTT_TOPIC || 'sewage/nodes/+/telemetry';
@@ -54,15 +55,19 @@ export function useTelemetry() {
 
       setLatest(reading);
 
+      setNodes((prev) => ({ ...prev, [reading.nodeId]: reading }));
+
       setHistory((prev) => {
         const next = [...prev, reading];
         return next.length > HISTORY_LIMIT ? next.slice(next.length - HISTORY_LIMIT) : next;
       });
 
-      // Log a new alert row only on a transition INTO Warning/Critical,
-      // not on every message while the node stays in that state.
+      // Log a new alert row only on a transition INTO Warning/Critical for
+      // THAT node, not on every message while it stays in that state, and
+      // not when a different node's status happens to change.
       const isAlertState = reading.status === 'WARNING' || reading.status === 'CRITICAL';
-      const changedIntoAlert = isAlertState && reading.status !== previousStatusRef.current;
+      const previousStatusForNode = previousStatusByNodeRef.current[reading.nodeId] || 'NORMAL';
+      const changedIntoAlert = isAlertState && reading.status !== previousStatusForNode;
 
       if (changedIntoAlert) {
         setAlerts((prev) => {
@@ -79,7 +84,7 @@ export function useTelemetry() {
         });
       }
 
-      previousStatusRef.current = reading.status;
+      previousStatusByNodeRef.current[reading.nodeId] = reading.status;
     };
 
     const handleError = (err) => {
@@ -108,7 +113,7 @@ export function useTelemetry() {
     };
   }, []);
 
-  return { latest, history, alerts, connectionState };
+  return { latest, history, alerts, nodes, connectionState };
 }
 
 export { CONNECTION_STATES };
