@@ -16,6 +16,7 @@ const CONNECTION_STATES = {
   CONNECTED: 'CONNECTED',
   DISCONNECTED: 'DISCONNECTED',
   ERROR: 'ERROR',
+  NOT_CONFIGURED: 'NOT_CONFIGURED',
 };
 
 export function useTelemetry() {
@@ -28,6 +29,14 @@ export function useTelemetry() {
   useEffect(() => {
     const topic = import.meta.env.VITE_MQTT_TOPIC || 'sewage/nodes/+/telemetry';
     const mqttClient = getMqttClient();
+
+    // No broker URL set yet — show a clear "not configured" state instead
+    // of letting mqtt.js guess a WebSocket URL from the page origin, which
+    // throws an uncatchable SecurityError on an HTTPS-served site.
+    if (!mqttClient) {
+      setConnectionState(CONNECTION_STATES.NOT_CONFIGURED);
+      return undefined;
+    }
 
     const handleConnect = () => {
       setConnectionState(CONNECTION_STATES.CONNECTED);
