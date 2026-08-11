@@ -14,12 +14,26 @@ import mqtt from 'mqtt';
 let client = null;
 
 /**
+ * True only when VITE_MQTT_URL looks like a real wss:// broker endpoint.
+ * Without this guard, mqtt.js falls back to guessing a WebSocket URL from
+ * the current page origin — which throws an uncatchable SecurityError on
+ * an HTTPS-served site (insecure ws:// is blocked by the browser) and
+ * crashes the whole app instead of failing gracefully.
+ */
+export function isMqttConfigured() {
+  const url = import.meta.env.VITE_MQTT_URL;
+  return typeof url === 'string' && /^wss?:\/\//.test(url);
+}
+
+/**
  * Lazily creates (or returns the existing) singleton MQTT client so multiple
  * components/hooks can share a single live connection instead of each
- * opening its own socket.
+ * opening its own socket. Returns null when no broker is configured yet,
+ * so callers can show a "not configured" state instead of crashing.
  */
 export function getMqttClient() {
   if (client) return client;
+  if (!isMqttConfigured()) return null;
 
   const url = import.meta.env.VITE_MQTT_URL; // e.g. wss://<cluster>.s1.eu.hivemq.cloud:8884/mqtt
   const username = import.meta.env.VITE_MQTT_USERNAME;
