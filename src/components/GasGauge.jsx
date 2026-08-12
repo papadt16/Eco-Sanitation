@@ -1,4 +1,3 @@
-const MAX_PPM = 1000; // gauge scale ceiling
 const DEFAULT_THRESHOLDS = { warning: 300, critical: 600 };
 
 function toneFor(ppm, thresholds) {
@@ -7,25 +6,42 @@ function toneFor(ppm, thresholds) {
   return { stroke: '#22c55e', text: 'text-status-normal', label: 'Normal' };
 }
 
-export default function GasGauge({ methanePpm, warningAt, criticalAt }) {
-  const ppm = methanePpm ?? 0;
+/**
+ * Reusable radial gauge for any single ppm-scale gas reading. Originally
+ * built for MQ-4 methane; also used for MQ-135 general air quality by
+ * passing different label/title/value/threshold props.
+ */
+export default function GasGauge({
+  value,
+  warningAt,
+  criticalAt,
+  maxScale = 1000,
+  eyebrow = 'Gas Concentration',
+  title = 'Methane (CH₄)',
+  unitLabel = 'ppm',
+  unavailableNote = 'sensor not reporting yet',
+}) {
+  const hasReading = value !== null && value !== undefined;
+  const ppm = hasReading ? value : 0;
   const thresholds = {
     warning: warningAt ?? DEFAULT_THRESHOLDS.warning,
     critical: criticalAt ?? DEFAULT_THRESHOLDS.critical,
   };
-  const tone = toneFor(ppm, thresholds);
+  const tone = hasReading
+    ? toneFor(ppm, thresholds)
+    : { stroke: '#475569', text: 'text-slate-500', label: 'No data' };
 
   const radius = 70;
   const circumference = Math.PI * radius; // half-circle arc length
-  const progress = Math.min(ppm / MAX_PPM, 1);
+  const progress = Math.min(ppm / maxScale, 1);
   const dashOffset = circumference * (1 - progress);
 
   return (
     <div className="panel flex flex-col">
       <div className="panel-header">
         <div>
-          <p className="eyebrow">Gas Concentration</p>
-          <h3 className="font-display text-white font-semibold">Methane (CH₄)</h3>
+          <p className="eyebrow">{eyebrow}</p>
+          <h3 className="font-display text-white font-semibold">{title}</h3>
         </div>
         <span className={`text-xs font-mono px-2 py-1 rounded-md border ${tone.text} border-current/30`}>
           {tone.label}
@@ -57,18 +73,20 @@ export default function GasGauge({ methanePpm, warningAt, criticalAt }) {
 
         <div className="-mt-8 text-center">
           <p className="font-mono text-4xl font-semibold text-white tabular-nums">
-            {ppm.toFixed(0)}
-            <span className="text-lg text-slate-500 ml-1">ppm</span>
+            {hasReading ? ppm.toFixed(0) : '—'}
+            <span className="text-lg text-slate-500 ml-1">{unitLabel}</span>
           </p>
-          <p className="text-sm text-slate-400 mt-1">airborne methane concentration</p>
+          <p className="text-sm text-slate-400 mt-1">
+            {hasReading ? `airborne ${title.toLowerCase()} concentration` : unavailableNote}
+          </p>
         </div>
 
         <div className="mt-5 flex items-center gap-4 text-xs font-mono text-slate-500">
           <span className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-status-warning/70" /> ≥ {thresholds.warning} ppm
+            <span className="h-1.5 w-1.5 rounded-full bg-status-warning/70" /> ≥ {thresholds.warning} {unitLabel}
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-status-critical/70" /> ≥ {thresholds.critical} ppm
+            <span className="h-1.5 w-1.5 rounded-full bg-status-critical/70" /> ≥ {thresholds.critical} {unitLabel}
           </span>
         </div>
       </div>

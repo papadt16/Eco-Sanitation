@@ -77,6 +77,7 @@ export function useTelemetry() {
             status: reading.status,
             levelPct: reading.levelPct,
             methanePpm: reading.methanePpm,
+            airQualityPpm: reading.airQualityPpm,
             timestamp: reading.receivedAt,
           };
           const next = [entry, ...prev];

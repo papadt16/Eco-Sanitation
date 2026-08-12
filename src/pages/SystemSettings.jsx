@@ -77,6 +77,18 @@ export default function SystemSettings() {
             value={draft.methaneCritical}
             onChange={handleChange('methaneCritical')}
           />
+          <ThresholdField
+            label="Air quality — warning at"
+            suffix="ppm"
+            value={draft.airQualityWarning}
+            onChange={handleChange('airQualityWarning')}
+          />
+          <ThresholdField
+            label="Air quality — critical at"
+            suffix="ppm"
+            value={draft.airQualityCritical}
+            onChange={handleChange('airQualityCritical')}
+          />
         </div>
 
         <div className="flex items-center gap-3 pt-2">

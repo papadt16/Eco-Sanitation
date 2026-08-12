@@ -46,6 +46,19 @@ export default function HistoricalChart({ history }) {
           fill: true,
           yAxisID: 'y1',
         },
+        {
+          label: 'Air quality (ppm)',
+          data: displayWindow.map((r) => r.airQualityPpm),
+          borderColor: '#a78bfa',
+          backgroundColor: 'rgba(167,139,250,0.08)',
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          borderWidth: 2,
+          tension: 0.35,
+          fill: true,
+          spanGaps: true, // bridge across readings where this sensor wasn't reporting
+          yAxisID: 'y1',
+        },
       ],
     };
   }, [displayWindow]);
@@ -91,7 +104,7 @@ export default function HistoricalChart({ history }) {
           suggestedMax: 1000,
           grid: { drawOnChartArea: false },
           ticks: { color: '#f59e0b' },
-          title: { display: true, text: 'Methane (ppm)', color: '#f59e0b', font: { size: 11 } },
+          title: { display: true, text: 'Gas (ppm)', color: '#f59e0b', font: { size: 11 } },
         },
       },
     }),

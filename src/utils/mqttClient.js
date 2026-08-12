@@ -7,7 +7,13 @@
 // in the UI (see white-label requirement).
 //
 // Expected ESP32 payload on VITE_MQTT_TOPIC:
-//   { "node_id": "Manhole_01", "level_pct": 78, "methane_ppm": 450, "status": "WARNING" }
+//   {
+//     "node_id": "Manhole_01",
+//     "level_pct": 78,
+//     "methane_ppm": 450,        // MQ-4
+//     "air_quality_ppm": 620,    // MQ-135, optional — omit if that sensor isn't wired yet
+//     "status": "WARNING"
+//   }
 // ============================================================================
 import mqtt from 'mqtt';
 
@@ -74,10 +80,16 @@ export function parseTelemetryPayload(messageBuffer) {
       throw new Error('Payload missing required fields');
     }
 
+    // air_quality_ppm (MQ-135) is optional — older firmware or a node
+    // without that sensor wired up simply won't send it.
+    const hasAirQuality = raw.air_quality_ppm !== undefined && raw.air_quality_ppm !== null;
+    const airQuality = hasAirQuality ? Number(raw.air_quality_ppm) : null;
+
     return {
       nodeId: String(raw.node_id),
       levelPct: Math.min(100, Math.max(0, level)),
       methanePpm: Math.max(0, methane),
+      airQualityPpm: airQuality !== null && !Number.isNaN(airQuality) ? Math.max(0, airQuality) : null,
       status: (raw.status || 'NORMAL').toUpperCase(),
       receivedAt: new Date(),
     };

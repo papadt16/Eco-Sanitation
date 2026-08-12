@@ -14,16 +14,27 @@ export default function Dashboard() {
     <>
       <StatusHeader latest={latest} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <WaterLevelGauge
           levelPct={latest?.levelPct}
           warningAt={thresholds.levelWarning}
           criticalAt={thresholds.levelCritical}
         />
         <GasGauge
-          methanePpm={latest?.methanePpm}
+          value={latest?.methanePpm}
+          eyebrow="Gas Concentration"
+          title="Methane (CH₄)"
           warningAt={thresholds.methaneWarning}
           criticalAt={thresholds.methaneCritical}
+          maxScale={1000}
+        />
+        <GasGauge
+          value={latest?.airQualityPpm}
+          eyebrow="Air Quality"
+          title="General Air Quality"
+          warningAt={thresholds.airQualityWarning}
+          criticalAt={thresholds.airQualityCritical}
+          maxScale={2000}
         />
       </div>
 

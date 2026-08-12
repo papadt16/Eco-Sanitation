@@ -34,6 +34,7 @@ export default function AlertsPanel({ alerts }) {
                   </div>
                   <p className="text-xs text-slate-400 mt-0.5 font-mono">
                     Level {alert.levelPct.toFixed(0)}% · CH₄ {alert.methanePpm.toFixed(0)} ppm
+                    {alert.airQualityPpm != null ? ` · AQ ${alert.airQualityPpm.toFixed(0)} ppm` : ''}
                   </p>
                 </div>
               </div>

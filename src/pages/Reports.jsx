@@ -7,15 +7,19 @@ export default function Reports() {
 
   const stats = useMemo(() => {
     if (history.length === 0) {
-      return { avgLevel: 0, peakLevel: 0, avgMethane: 0, peakMethane: 0 };
+      return { avgLevel: 0, peakLevel: 0, avgMethane: 0, peakMethane: 0, avgAirQuality: null, peakAirQuality: null };
     }
     const levels = history.map((r) => r.levelPct);
     const methane = history.map((r) => r.methanePpm);
+    const airQuality = history.map((r) => r.airQualityPpm).filter((v) => v !== null);
+
     return {
       avgLevel: levels.reduce((a, b) => a + b, 0) / levels.length,
       peakLevel: Math.max(...levels),
       avgMethane: methane.reduce((a, b) => a + b, 0) / methane.length,
       peakMethane: Math.max(...methane),
+      avgAirQuality: airQuality.length ? airQuality.reduce((a, b) => a + b, 0) / airQuality.length : null,
+      peakAirQuality: airQuality.length ? Math.max(...airQuality) : null,
     };
   }, [history]);
 
@@ -25,12 +29,13 @@ export default function Reports() {
   const handleExportReadings = () => {
     downloadCsv(
       `telemetry-readings-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.csv`,
-      ['timestamp', 'nodeId', 'levelPct', 'methanePpm', 'status'],
+      ['timestamp', 'nodeId', 'levelPct', 'methanePpm', 'airQualityPpm', 'status'],
       history.map((r) => ({
         timestamp: r.receivedAt.toISOString(),
         nodeId: r.nodeId,
         levelPct: r.levelPct.toFixed(1),
         methanePpm: r.methanePpm.toFixed(0),
+        airQualityPpm: r.airQualityPpm != null ? r.airQualityPpm.toFixed(0) : '',
         status: r.status,
       }))
     );
@@ -53,11 +58,21 @@ export default function Reports() {
         </button>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard label="Avg. fill level" value={`${stats.avgLevel.toFixed(0)}%`} accent="text-brand-400" />
-        <StatCard label="Peak fill level" value={`${stats.peakLevel.toFixed(0)}%`} accent="text-status-warning" />
         <StatCard label="Avg. methane" value={`${stats.avgMethane.toFixed(0)} ppm`} accent="text-brand-400" />
+        <StatCard
+          label="Avg. air quality"
+          value={stats.avgAirQuality != null ? `${stats.avgAirQuality.toFixed(0)} ppm` : 'No data'}
+          accent="text-brand-400"
+        />
+        <StatCard label="Peak fill level" value={`${stats.peakLevel.toFixed(0)}%`} accent="text-status-warning" />
         <StatCard label="Peak methane" value={`${stats.peakMethane.toFixed(0)} ppm`} accent="text-status-warning" />
+        <StatCard
+          label="Peak air quality"
+          value={stats.peakAirQuality != null ? `${stats.peakAirQuality.toFixed(0)} ppm` : 'No data'}
+          accent="text-status-warning"
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-4">

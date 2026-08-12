@@ -36,6 +36,7 @@ export default function NodeRegistry() {
                 <th className="px-5 py-3 font-medium">Status</th>
                 <th className="px-5 py-3 font-medium">Fill level</th>
                 <th className="px-5 py-3 font-medium">Methane</th>
+                <th className="px-5 py-3 font-medium">Air quality</th>
                 <th className="px-5 py-3 font-medium">Last seen</th>
               </tr>
             </thead>
@@ -63,6 +64,9 @@ export default function NodeRegistry() {
                     <td className="px-5 py-3.5 font-mono text-slate-200">
                       {reading ? `${reading.methanePpm.toFixed(0)} ppm` : '—'}
                     </td>
+                    <td className="px-5 py-3.5 font-mono text-slate-200">
+                      {reading?.airQualityPpm != null ? `${reading.airQualityPpm.toFixed(0)} ppm` : '—'}
+                    </td>
                     <td className="px-5 py-3.5 font-mono text-xs text-slate-500">
                       {reading ? reading.receivedAt.toLocaleTimeString() : 'Never'}
                     </td>
@@ -76,7 +80,8 @@ export default function NodeRegistry() {
 
       <p className="text-xs text-slate-600 font-mono">
         Thresholds — Level: warning ≥ {thresholds.levelWarning}%, critical ≥ {thresholds.levelCritical}% ·
-        {' '}Methane: warning ≥ {thresholds.methaneWarning} ppm, critical ≥ {thresholds.methaneCritical} ppm.
+        {' '}Methane: warning ≥ {thresholds.methaneWarning} ppm, critical ≥ {thresholds.methaneCritical} ppm ·
+        {' '}Air quality: warning ≥ {thresholds.airQualityWarning} ppm, critical ≥ {thresholds.airQualityCritical} ppm.
         Adjust these in System Settings.
       </p>
     </div>

@@ -21,13 +21,14 @@ export default function AlertHistory() {
   const handleExport = () => {
     downloadCsv(
       `alert-history-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.csv`,
-      ['timestamp', 'nodeId', 'status', 'levelPct', 'methanePpm'],
+      ['timestamp', 'nodeId', 'status', 'levelPct', 'methanePpm', 'airQualityPpm'],
       filtered.map((a) => ({
         timestamp: a.timestamp.toISOString(),
         nodeId: a.nodeId,
         status: a.status,
         levelPct: a.levelPct.toFixed(1),
         methanePpm: a.methanePpm.toFixed(0),
+        airQualityPpm: a.airQualityPpm != null ? a.airQualityPpm.toFixed(0) : '',
       }))
     );
   };
@@ -78,6 +79,7 @@ export default function AlertHistory() {
                     <p className={`text-sm font-medium ${tone.text}`}>{tone.label} — {alert.nodeId}</p>
                     <p className="text-xs text-slate-400 mt-0.5 font-mono">
                       Level {alert.levelPct.toFixed(0)}% · CH₄ {alert.methanePpm.toFixed(0)} ppm
+                      {alert.airQualityPpm != null ? ` · AQ ${alert.airQualityPpm.toFixed(0)} ppm` : ''}
                     </p>
                   </div>
                   <span className="text-xs font-mono text-slate-500">

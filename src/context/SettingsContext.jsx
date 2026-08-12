@@ -16,6 +16,8 @@ export const DEFAULT_THRESHOLDS = {
   levelCritical: 85,
   methaneWarning: 300,
   methaneCritical: 600,
+  airQualityWarning: 400,
+  airQualityCritical: 1000,
 };
 
 const SettingsContext = createContext(null);
